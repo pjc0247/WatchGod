@@ -1,0 +1,12 @@
+Gem::Specification.new do |s|
+  s.name        = "watchgod"
+  s.version     = "0.0.2"
+  s.summary     = "DATDATDAT"
+  s.description = "DATADATA"
+  s.authors     = ["pjc0247"]
+  s.email       = 'pjc0247@naver.com'
+  s.executables << 'watchgod'
+  s.executables << 'cacert.pem'
+  
+  s.add_development_dependency "pushover"
+end

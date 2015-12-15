@@ -1,17 +1,18 @@
 WatchGod
 ====
 
-![img](img/push.png)
+![img](img/push.png)<br>
+![img](img/detail.png)
 
 Usage
 ----
-(Not provided yet)
 ```
 gem install watchgod
 ```
 ```
-watchgod USER_TOKEN AUTH_STRING
+watchgod APP_TOKEN USER_TOKEN AUTH_STRING
 ```
+* __APP_TOKEN__ : [PushOver](pushover.net) app token
 * __USER_TOKEN__ : [PushOver](pushover.net) user token
 * __AUTH_STRING__ : HTTP basic auth string for Github
 
