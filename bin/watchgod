@@ -1,0 +1,75 @@
+require 'pushover'
+require 'json'
+require 'net/http'
+
+# watchgod APP_TOKEN USER_TOKEN AUTH_STRING
+AppToken = ARGV[0]
+UserToken = ARGV[1]
+AuthString = ARGV[2]
+
+def fetch_events
+  uri = URI("https://api.github.com/users/jwvg0425/events/public")
+  req = Net::HTTP::Get.new(uri)
+  req['Authorization'] = "Basic #{AuthString}"
+  http = Net::HTTP.new(uri.hostname, uri.port)
+  http.use_ssl = true
+  http.ca_file = (__dir__ + '/cacert.pem')
+  res =  http.request(req)
+
+  events = JSON.load(res.body)
+  
+  return events
+end
+def send_noti title, msg, url
+  Pushover.notification(message: msg, title: title, url: url)
+end
+
+last_id = fetch_events.first["id"]
+
+Pushover.configure do |config|
+  config.user = UserToken
+  config.token = AppToken
+end
+
+loop do  
+  puts "FETCH #{last_id}"
+
+  events = fetch_events
+  events.each do |event|
+    break if event["id"] == last_id
+
+    case event["type"]
+      when "PushEvent"
+        name = event["repo"]["name"]
+        body = event["payload"]["commits"][0]["message"]
+        url = event["payload"]["commits"][0]["url"]
+
+        send_noti "God just pushed commits - #{name}", body, url
+      when "CommitCommentEvent"
+        name = event["repo"]["name"]
+        body = event["payload"]["comment"]["body"]
+        url = event["payload"]["comment"]["url"]
+
+        send_noti "God just commented on commit", body, url
+      when "CreateEvent"
+        name = event["repo"]["name"]
+        url = event["repo"]["url"]
+
+        send_noti "God just created repo - #{name}", name, url
+      when "IssuesEvent"
+        action = event["payload"]["action"]
+        body = event["payload"]["issue"]["title"]
+        url = event["payload"]["issue"]["url"]
+
+        send_noti "God just #{action} issue", body, url
+      when "IssueCommentEvent"
+        body = event["payload"]["comment"]["body"]
+        url = event["payload"]["comment"]["url"]
+
+        send_noti "God just commented on issue", body, url
+    end
+  end
+  
+  last_id = events.first["id"]
+  sleep 10
+end
