@@ -5,6 +5,7 @@ WatchGod
 
 Usage
 ----
+(Not provided yet)
 ```
 gem install watchgod
 ```
